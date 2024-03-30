@@ -1,21 +1,25 @@
 from models.repository.scrapedDataCollection_repository import scrapedDataCollectionRepository
-from flask import request
+from app.utils.similar_web_scraping import SimilarWebScraping
 
 class ApiController:
     def __init__(self, db_connection) -> None:
         self.__db_connection = db_connection
         self.__repository = scrapedDataCollectionRepository(self.__db_connection)
 
-    # Ps.: Implementar essa função após criar o código de webScraping
-    # def salve_info(self):
-    #     scraped_data = request.json["scrapedData"]
+    async def __scrape_data(self, url: str):
+        web_scraper = SimilarWebScraping(url)
+        result = await web_scraper.scrape_data()
 
-    #     response = self.__repository.scrape_data(scraped_data)
-    #     return response
+        self.__repository.insert_document(result)
+
+    async def salve_info(self, url: str):
+        result = await self.__repository.insert_processing_document(url)
+
+        self.__scrape_data(str)
+        
+        return result
     
-    def get_info(self):
-        url = request.json["url"]
-
-        response = self.__repository.find_by_url(url)
+    async def get_info(self, url: str):
+        response = await self.__repository.find_by_url(url)
 
         return response
