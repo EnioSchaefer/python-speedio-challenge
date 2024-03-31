@@ -2,7 +2,7 @@
 
 ## Teste de back-end
 
-A aplicação consiste em uma API em Python + Flask e mongoDB como banco de dados.
+A aplicação consiste em uma API em Python + FastAPI e mongoDB como banco de dados.
 A API realiza scraping de dados do website SimilarWeb, recebendo uma url e retornando os dados adquiridos.
 
 Atualmente a aplicação utiliza um headless browser via selenium e chrome webdriver. Pretendo refazer a parte de scraping em breve sem automatizadores de navegação como selenium.

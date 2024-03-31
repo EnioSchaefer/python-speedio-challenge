@@ -4,6 +4,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import NoSuchElementException
 from datetime import datetime, timedelta
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 class SimilarWebScraping:
     def __init__(self, url: str) -> None:
@@ -42,7 +44,10 @@ class SimilarWebScraping:
         driver = webdriver.Chrome(options=chrome_options)
 
         home_page = driver.get(f'https://www.similarweb.com/website/{self.__url}/#overview')
-        time.sleep(7)
+
+        element = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.CLASS_NAME, 'wa-overview__title'))
+        )
 
         current_date = datetime.now()
         last_month_date = current_date - timedelta(days=current_date.day)
@@ -59,11 +64,16 @@ class SimilarWebScraping:
             pass
 
         try:
-            driver.find_element(By.CLASS_NAME, 'app-more-less-text__button').click()
+            try:
+                driver.find_element(By.CLASS_NAME, 'app-more-less-text__button').click()
+                description_text = driver.find_element(By.CLASS_NAME, 'app-more-less-text').text.replace(' Show less', '')
+            except:
+                description_text = ""
+                pass
 
             website_data = {
                 "title": driver.find_element(By.CLASS_NAME, 'wa-overview__title').text,
-                "description": driver.find_element(By.CLASS_NAME, 'app-more-less-text').text.replace(' Show less', ''),
+                "description": description_text,
                 "companyName": driver.find_element(By.CLASS_NAME, 'app-company-info__link').text,
                 "yearFounded": driver.find_element(By.XPATH, '/html/body/div[1]/div/main/div/div/div[1]/section/div/div/div/div[5]/div/dl/div[2]/dd').text,
                 "employees": driver.find_element(By.XPATH, '/html/body/div[1]/div/main/div/div/div[1]/section/div/div/div/div[5]/div/dl/div[3]/dd').text,
@@ -342,5 +352,6 @@ class SimilarWebScraping:
                     break
 
             return website_data
-        except:
+        except Exception as e:
+            print(str(e))
             raise Exception('500: Internal Server Error')
